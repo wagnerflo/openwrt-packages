@@ -1,0 +1,83 @@
+--- a/module/zfs/dsl_dir.c	2026-02-24 22:09:27.853744748 +0100
++++ b/module/zfs/dsl_dir.c	2026-05-05 19:07:41.471377594 +0200
+@@ -1606,7 +1606,7 @@
+ 	ASSERT(delta > 0 ?
+ 	    ddp->dd_used_breakdown[oldtype] >= delta :
+ 	    ddp->dd_used_breakdown[newtype] >= -delta);
+-	ASSERT(ddp->dd_used_bytes >= ABS(delta));
++	ASSERT(ddp->dd_used_bytes >= NUMABS(delta));
+ 	ddp->dd_used_breakdown[oldtype] -= delta;
+ 	ddp->dd_used_breakdown[newtype] += delta;
+ 	mutex_exit(&dd->dd_lock);
+--- a/module/zfs/dsl_dataset.c	2026-05-05 19:17:15.893429793 +0200
++++ b/module/zfs/dsl_dataset.c	2026-05-05 19:07:41.472377587 +0200
+@@ -131,7 +131,7 @@
+ 	old_bytes = MAX(ds_phys->ds_unique_bytes, ds->ds_reserved);
+ 	new_bytes = MAX(ds_phys->ds_unique_bytes + delta, ds->ds_reserved);
+ 
+-	ASSERT3U(ABS((int64_t)(new_bytes - old_bytes)), <=, ABS(delta));
++	ASSERT3U(NUMABS((int64_t)(new_bytes - old_bytes)), <=, NUMABS(delta));
+ 	return (new_bytes - old_bytes);
+ }
+ 
+--- a/module/zfs/zfs_crrd.c	2026-05-05 19:14:01.503765767 +0200
++++ b/module/zfs/zfs_crrd.c	2026-05-05 19:14:23.833612298 +0200
+@@ -208,8 +208,8 @@
+ 	if (r2 == NULL)
+ 		return (r1);
+ 
+-	return (ABS(tv - (hrtime_t)r1->rrdd_time) <
+-	    ABS(tv - (hrtime_t)r2->rrdd_time) ? r1 : r2);
++	return (NUMABS(tv - (hrtime_t)r1->rrdd_time) <
++	    NUMABS(tv - (hrtime_t)r2->rrdd_time) ? r1 : r2);
+ }
+ 
+ uint64_t
+--- a/module/zfs/vdev_mirror.c	2026-05-05 19:18:39.710853768 +0200
++++ b/module/zfs/vdev_mirror.c	2026-05-05 19:07:41.472377587 +0200
+@@ -233,7 +233,7 @@
+ 	 * of a seek increment.
+ 	 */
+ 	offset_diff = (int64_t)(last_offset - zio_offset);
+-	if (ABS(offset_diff) < zfs_vdev_mirror_rotating_seek_offset) {
++	if (NUMABS(offset_diff) < zfs_vdev_mirror_rotating_seek_offset) {
+ 		MIRROR_BUMP(vdev_mirror_stat_rotating_offset);
+ 		return (load + (zfs_vdev_mirror_rotating_seek_inc / 2));
+ 	}
+--- a/cmd/zdb/zdb.c	2026-02-24 21:50:55.754270202 +0100
++++ b/cmd/zdb/zdb.c	2026-05-05 19:07:41.473377580 +0200
+@@ -7044,7 +7044,7 @@
+ 			    (u_longlong_t)DVA_GET_ASIZE(&vimep->vimep_dst),
+ 			    (u_longlong_t)bytes_leaked);
+ 		}
+-		total_leaked += ABS(bytes_leaked);
++		total_leaked += NUMABS(bytes_leaked);
+ 	}
+ 
+ 	VERIFY0(vdev_obsolete_counts_are_precise(vd, &are_precise));
+--- a/include/os/linux/spl/sys/sysmacros.h	2026-05-05 19:21:05.704850398 +0200
++++ b/include/os/linux/spl/sys/sysmacros.h	2026-05-05 19:07:41.473377580 +0200
+@@ -146,8 +146,8 @@
+ #ifndef MAX
+ #define	MAX(a, b)		((a) < (b) ? (b) : (a))
+ #endif
+-#ifndef ABS
+-#define	ABS(a)			((a) < 0 ? -(a) : (a))
++#ifndef NUMABS
++#define	NUMABS(a)			((a) < 0 ? -(a) : (a))
+ #endif
+ #ifndef DIV_ROUND_UP
+ #define	DIV_ROUND_UP(n, d)	(((n) + (d) - 1) / (d))
+--- a/lib/libspl/include/os/linux/sys/sysmacros.h	2026-05-05 19:21:44.735578726 +0200
++++ b/lib/libspl/include/os/linux/sys/sysmacros.h	2026-05-05 19:07:41.473377580 +0200
+@@ -37,8 +37,8 @@
+ #ifndef MAX
+ #define	MAX(a, b)	((a) < (b) ? (b) : (a))
+ #endif
+-#ifndef ABS
+-#define	ABS(a)		((a) < 0 ? -(a) : (a))
++#ifndef NUMABS
++#define	NUMABS(a)		((a) < 0 ? -(a) : (a))
+ #endif
+ #ifndef ARRAY_SIZE
+ #define	ARRAY_SIZE(a) (sizeof (a) / sizeof (a[0]))

@@ -1,0 +1,15 @@
+--- a/zfs_config.h.in	2026-02-24 22:09:13.000000000 +0100
++++ b/zfs_config.h.in	2026-05-05 19:07:41.469377607 +0200
+@@ -624,12 +624,6 @@
+ /* standalone <linux/stdarg.h> exists */
+ #undef HAVE_STANDALONE_LINUX_STDARG
+ 
+-/* statx() is available */
+-#undef HAVE_STATX
+-
+-/* STATX_MNT_ID is available */
+-#undef HAVE_STATX_MNT_ID
+-
+ /* Define to 1 if you have the <stdint.h> header file. */
+ #undef HAVE_STDINT_H
+ 

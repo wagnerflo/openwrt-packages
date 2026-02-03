@@ -1,0 +1,11 @@
+--- a/META	2026-02-24 22:09:28.411788009 +0100
++++ b/META	2026-05-05 19:07:41.468377614 +0200
+@@ -4,7 +4,7 @@
+ Version:       2.4.1
+ Release:       1
+ Release-Tags:  relext
+-License:       CDDL
++License:       GPL
+ Author:        OpenZFS
+ Linux-Maximum: 6.19
+ Linux-Minimum: 4.18

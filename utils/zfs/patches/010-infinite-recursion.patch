@@ -1,0 +1,12 @@
+--- a/module/lua/ldo.c	2025-12-10 19:41:05.181854218 +0100
++++ b/module/lua/ldo.c	2025-12-10 19:41:20.722051014 +0100
+@@ -173,8 +173,7 @@
+ /*
+  * Silence infinite recursion warning which was added to -Wall in gcc 12.1
+  */
+-#if defined(__GNUC__) && !defined(__clang__) && \
+-	defined(HAVE_KERNEL_INFINITE_RECURSION)
++#if defined(__GNUC__) && !defined(__clang__)
+ #pragma GCC diagnostic push
+ #pragma GCC diagnostic ignored "-Winfinite-recursion"
+ #endif
