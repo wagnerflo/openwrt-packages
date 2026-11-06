@@ -43,7 +43,10 @@ PKG_MOD_EXTRA := \
 # official and 3rd-party modules
 PKG_MOD_ALL := \
 	$(PKG_MOD_EXTRA) \
-	stream
+	stream \
+	mail \
+	xslt \
+	image-filter
 PKG_MOD_PATCHED := $(shell find patches -mindepth 1 -maxdepth 1 -type d -name 'nginx-mod-*' | sed -E 's,^patches/nginx-mod-,,')
 
 PKG_CONFIG_DEPENDS := \
@@ -87,6 +90,37 @@ PKG_CONFIG_DEPENDS := \
 	CONFIG_NGINX_HTTP_SUB \
 	CONFIG_NGINX_HTTP_TUNNEL \
 	CONFIG_NGINX_STREAM_REAL_IP \
+	CONFIG_NGINX_HTTP_ADDITION \
+	CONFIG_NGINX_HTTP_MP4 \
+	CONFIG_NGINX_HTTP_GUNZIP \
+	CONFIG_NGINX_HTTP_RANDOM_INDEX \
+	CONFIG_NGINX_HTTP_SLICE \
+	CONFIG_NGINX_HTTP_JSON \
+	CONFIG_NGINX_HTTP_MIRROR \
+	CONFIG_NGINX_HTTP_GRPC \
+	CONFIG_NGINX_HTTP_UPSTREAM_RANDOM \
+	CONFIG_NGINX_HTTP_UPSTREAM_LEAST_TIME \
+	CONFIG_NGINX_HTTP_UPSTREAM_STICKY \
+	CONFIG_NGINX_HTTP_UPSTREAM_ZONE \
+	CONFIG_NGINX_QUIC_BPF \
+	CONFIG_NGINX_THREADS \
+	CONFIG_NGINX_DEBUG \
+	CONFIG_NGINX_STREAM_ACCESS \
+	CONFIG_NGINX_STREAM_LIMIT_CONN \
+	CONFIG_NGINX_STREAM_GEO \
+	CONFIG_NGINX_STREAM_MAP \
+	CONFIG_NGINX_STREAM_SPLIT_CLIENTS \
+	CONFIG_NGINX_STREAM_RETURN \
+	CONFIG_NGINX_STREAM_PASS \
+	CONFIG_NGINX_STREAM_SET \
+	CONFIG_NGINX_STREAM_UPSTREAM_HASH \
+	CONFIG_NGINX_STREAM_UPSTREAM_LEAST_CONN \
+	CONFIG_NGINX_STREAM_UPSTREAM_LEAST_TIME \
+	CONFIG_NGINX_STREAM_UPSTREAM_RANDOM \
+	CONFIG_NGINX_STREAM_UPSTREAM_ZONE \
+	CONFIG_NGINX_MAIL_POP3 \
+	CONFIG_NGINX_MAIL_IMAP \
+	CONFIG_NGINX_MAIL_SMTP \
 	CONFIG_OPENSSL_ENGINE \
 	CONFIG_OPENSSL_WITH_NPN \
 	$(foreach m,$(PKG_MOD_ALL),CONFIG_PACKAGE_nginx-mod-$(m))
@@ -122,7 +156,8 @@ define Package/nginx-ssl
     +NGINX_DAV:libxml2 \
     +NGINX_PCRE:nginx-ssl-util \
     +!NGINX_PCRE:nginx-ssl-util-nopcre \
-    +NGINX_HTTP_GZIP:zlib
+    +NGINX_HTTP_GZIP:zlib \
+    +NGINX_HTTP_GUNZIP:zlib
   EXTRA_DEPENDS:=nginx-ssl-util$(if $(CONFIG_NGINX_PCRE),,-nopcre) (>=1.5-r1)
   PROVIDES:=nginx
   VARIANT:=ssl
@@ -454,7 +489,6 @@ CONFIGURE_ARGS += \
 	--http-fastcgi-temp-path=/var/lib/nginx/fastcgi \
 	--with-cc="$(TARGET_CC)" \
 	--with-ld-opt="$(TARGET_LDFLAGS)" \
-	--without-http_upstream_zone_module \
 	--with-compat \
 	--with-http_ssl_module \
 	$(if $(call IsDisabled,NGINX_HTTP_CACHE),--without-http-cache) \
@@ -485,6 +519,13 @@ CONFIGURE_ARGS += \
 	$(if $(call IsDisabled,NGINX_HTTP_UPSTREAM_LEAST_CONN),--without-http_upstream_least_conn_module) \
 	$(if $(call IsDisabled,NGINX_HTTP_UPSTREAM_KEEPALIVE),--without-http_upstream_keepalive_module) \
 	$(if $(call IsDisabled,NGINX_HTTP_TUNNEL),--without-http_tunnel_module) \
+	$(if $(call IsDisabled,NGINX_HTTP_MIRROR),--without-http_mirror_module) \
+	$(if $(call IsDisabled,NGINX_HTTP_GRPC),--without-http_grpc_module) \
+	$(if $(call IsDisabled,NGINX_HTTP_UPSTREAM_RANDOM),--without-http_upstream_random_module) \
+	$(if $(call IsDisabled,NGINX_HTTP_UPSTREAM_LEAST_TIME),--without-http_upstream_least_time_module) \
+	$(if $(call IsDisabled,NGINX_HTTP_UPSTREAM_STICKY),--without-http_upstream_sticky_module) \
+	$(if $(call IsDisabled,NGINX_HTTP_UPSTREAM_ZONE),--without-http_upstream_zone_module) \
+	$(if $(call IsDisabled,NGINX_QUIC_BPF),--without-quic_bpf_module) \
 	$(if $(call IsEnabled,IPV6),--with-ipv6) \
 	$(if $(call IsEnabled,NGINX_HTTP_GZIP_STATIC),--with-http_gzip_static_module) \
 	$(if $(call IsEnabled,NGINX_STUB_STATUS),--with-http_stub_status_module) \
@@ -496,8 +537,35 @@ CONFIGURE_ARGS += \
 	$(if $(call IsEnabled,NGINX_HTTP_REAL_IP),--with-http_realip_module) \
 	$(if $(call IsEnabled,NGINX_HTTP_SECURE_LINK),--with-http_secure_link_module) \
 	$(if $(call IsEnabled,NGINX_HTTP_SUB),--with-http_sub_module) \
+	$(if $(call IsEnabled,NGINX_HTTP_ADDITION),--with-http_addition_module) \
+	$(if $(call IsEnabled,NGINX_HTTP_MP4),--with-http_mp4_module) \
+	$(if $(call IsEnabled,NGINX_HTTP_GUNZIP),--with-http_gunzip_module) \
+	$(if $(call IsEnabled,NGINX_HTTP_RANDOM_INDEX),--with-http_random_index_module) \
+	$(if $(call IsEnabled,NGINX_HTTP_SLICE),--with-http_slice_module) \
+	$(if $(call IsEnabled,NGINX_HTTP_JSON),--with-http_json_module) \
+	$(if $(call IsEnabled,NGINX_THREADS),--with-threads) \
+	$(if $(CONFIG_NGINX_DEBUG),--with-debug) \
+	$(if $(CONFIG_PACKAGE_nginx-mod-xslt),--with-http_xslt_module=dynamic) \
+	$(if $(CONFIG_PACKAGE_nginx-mod-image-filter),--with-http_image_filter_module=dynamic) \
 	$(if $(CONFIG_PACKAGE_nginx-mod-stream),--with-stream=dynamic --with-stream_ssl_module --with-stream_ssl_preread_module) \
 	$(if $(call IsEnabled,NGINX_STREAM_REAL_IP),--with-stream_realip_module) \
+	$(if $(call IsDisabled,NGINX_STREAM_ACCESS),--without-stream_access_module) \
+	$(if $(call IsDisabled,NGINX_STREAM_LIMIT_CONN),--without-stream_limit_conn_module) \
+	$(if $(call IsDisabled,NGINX_STREAM_GEO),--without-stream_geo_module) \
+	$(if $(call IsDisabled,NGINX_STREAM_MAP),--without-stream_map_module) \
+	$(if $(call IsDisabled,NGINX_STREAM_SPLIT_CLIENTS),--without-stream_split_clients_module) \
+	$(if $(call IsDisabled,NGINX_STREAM_RETURN),--without-stream_return_module) \
+	$(if $(call IsDisabled,NGINX_STREAM_PASS),--without-stream_pass_module) \
+	$(if $(call IsDisabled,NGINX_STREAM_SET),--without-stream_set_module) \
+	$(if $(call IsDisabled,NGINX_STREAM_UPSTREAM_HASH),--without-stream_upstream_hash_module) \
+	$(if $(call IsDisabled,NGINX_STREAM_UPSTREAM_LEAST_CONN),--without-stream_upstream_least_conn_module) \
+	$(if $(call IsDisabled,NGINX_STREAM_UPSTREAM_LEAST_TIME),--without-stream_upstream_least_time_module) \
+	$(if $(call IsDisabled,NGINX_STREAM_UPSTREAM_RANDOM),--without-stream_upstream_random_module) \
+	$(if $(call IsDisabled,NGINX_STREAM_UPSTREAM_ZONE),--without-stream_upstream_zone_module) \
+	$(if $(CONFIG_PACKAGE_nginx-mod-mail),--with-mail=dynamic --with-mail_ssl_module) \
+	$(if $(call IsDisabled,NGINX_MAIL_POP3),--without-mail_pop3_module) \
+	$(if $(call IsDisabled,NGINX_MAIL_IMAP),--without-mail_imap_module) \
+	$(if $(call IsDisabled,NGINX_MAIL_SMTP),--without-mail_smtp_module) \
 	$(if $(CONFIG_PACKAGE_nginx-mod-naxsi),--add-dynamic-module=$(PKG_BUILD_DIR)/nginx-mod-naxsi/naxsi_src) \
 	$(if $(CONFIG_PACKAGE_nginx-mod-njs),--add-dynamic-module=$(PKG_BUILD_DIR)/nginx-mod-njs/nginx) \
 	$(foreach m,$(filter-out lua-resty-core lua-resty-lrucache naxsi njs,$(PKG_MOD_EXTRA)), \
@@ -510,6 +578,12 @@ $(eval $(call BuildPackage,nginx-mod-lua-resty-lrucache))
 $(eval $(call BuildPackage,nginx-mod-lua-resty-core))
 $(eval $(call BuildModule,stream,+@NGINX_STREAM_CORE_MODULE, \
 	ngx_stream, Add support for NGINX request streaming.))
+$(eval $(call BuildModule,mail,,ngx_mail, \
+	Add support for the NGINX POP3/IMAP/SMTP proxy (mail) module.))
+$(eval $(call BuildModule,xslt,+libxml2 +libxslt,ngx_http_xslt_filter, \
+	Transform XML responses using XSLT stylesheets.))
+$(eval $(call BuildModule,image-filter,+libgd,ngx_http_image_filter, \
+	Transform JPEG GIF PNG and WebP images.))
 $(eval $(call BuildModule,lua,+nginx-mod-lua-resty-core,ngx_http_lua, \
 	Enable Lua module (luajit2 based, OpenResty patches)))
 $(eval $(call BuildModule,ubus,+libubus +libjson-c +libblobmsg-json, \
