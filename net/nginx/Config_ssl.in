@@ -200,6 +200,14 @@ config NGINX_HTTP_SUB
 	prompt "Enable HTTP sub module"
 	default n
 
+config NGINX_HTTP_TUNNEL
+	bool
+	prompt "Enable HTTP tunnel module"
+	help
+		Handles HTTP/1.1 CONNECT requests and establishes an end-to-end
+		virtual connection (forward proxy tunnel).
+	default n
+
 config NGINX_STREAM_REAL_IP
 	bool
 	prompt "Enable STREAM real ip module"
