@@ -183,6 +183,10 @@ config NGINX_HTTP_QUIC
 config NGINX_PCRE
 	bool
 	prompt "Enable PCRE library usage"
+	help
+		nginx always supports PCRE JIT when linked against libpcre2.
+		To use it, enable PCRE2_JIT_ENABLED ("Enable JIT compiler support")
+		in libpcre2 and set "pcre_jit on;" in nginx.conf.
 	default y
 
 config NGINX_HTTP_REAL_IP
@@ -200,9 +204,222 @@ config NGINX_HTTP_SUB
 	prompt "Enable HTTP sub module"
 	default n
 
+config NGINX_HTTP_TUNNEL
+	bool
+	prompt "Enable HTTP tunnel module"
+	help
+		Handles HTTP/1.1 CONNECT requests and establishes an end-to-end
+		virtual connection (forward proxy tunnel).
+	default n
+
+config NGINX_HTTP_ADDITION
+	bool
+	prompt "Enable HTTP addition module"
+	help
+		Adds text before and after a response.
+	default n
+
+config NGINX_HTTP_MP4
+	bool
+	prompt "Enable HTTP MP4 module"
+	help
+		Provides pseudo-streaming server-side support for MP4 files.
+	default n
+
+config NGINX_HTTP_GUNZIP
+	bool
+	prompt "Enable HTTP gunzip module"
+	help
+		Decompresses gzip-compressed responses for clients that do not
+		support gzip encoding.
+	default n
+
+config NGINX_HTTP_RANDOM_INDEX
+	bool
+	prompt "Enable HTTP random index module"
+	help
+		Picks a random file in a directory to serve as an index file.
+	default n
+
+config NGINX_HTTP_SLICE
+	bool
+	prompt "Enable HTTP slice module"
+	help
+		Splits a request into subrequests, each returning a certain range
+		of the response. Useful for caching of big responses.
+	default n
+
+config NGINX_HTTP_JSON
+	bool
+	prompt "Enable HTTP JSON module"
+	default n
+
+config NGINX_HTTP_MIRROR
+	bool
+	prompt "Enable HTTP mirror module"
+	help
+		Implements mirroring of an original request by creating background
+		mirror subrequests.
+	default y
+
+config NGINX_HTTP_GRPC
+	bool
+	prompt "Enable HTTP gRPC module"
+	depends on NGINX_HTTP_V2
+	help
+		Allows passing requests to a gRPC server.
+	default y
+
+config NGINX_HTTP_UPSTREAM_RANDOM
+	bool
+	prompt "Enable HTTP upstream random module"
+	default y
+
+config NGINX_HTTP_UPSTREAM_LEAST_TIME
+	bool
+	prompt "Enable HTTP upstream least time module"
+	default y
+
+config NGINX_HTTP_UPSTREAM_STICKY
+	bool
+	prompt "Enable HTTP upstream sticky module"
+	help
+		Session affinity support ("sticky" directive in upstream blocks).
+	default y
+
+config NGINX_HTTP_UPSTREAM_ZONE
+	bool
+	prompt "Enable HTTP upstream zone module"
+	help
+		Allows keeping upstream group configuration and run-time state
+		in shared memory shared between worker processes.
+	default n
+
+config NGINX_QUIC_BPF
+	bool
+	prompt "Enable QUIC BPF module"
+	depends on NGINX_HTTP_QUIC
+	help
+		Routes QUIC packets to worker processes via eBPF (Linux only).
+	default y
+
+config NGINX_THREADS
+	bool
+	prompt "Enable thread pool support"
+	help
+		Allows offloading blocking file reads and writes to a thread pool
+		("aio threads"). Only useful when serving large files from slow
+		storage such as USB disks or SD cards. Threads are only created
+		when "aio threads" or "thread_pool" is configured.
+	default n
+
+config NGINX_DEBUG
+	bool
+	prompt "Enable debug logging"
+	help
+		Builds nginx with debug logging support ("debug" error_log level).
+		Not enabled in the nginx-full variant unless selected here.
+	default n
+
 config NGINX_STREAM_REAL_IP
 	bool
 	prompt "Enable STREAM real ip module"
 	default n
+
+config NGINX_STREAM_ACCESS
+	bool
+	prompt "Enable STREAM access module"
+	depends on PACKAGE_nginx-mod-stream
+	default y
+
+config NGINX_STREAM_LIMIT_CONN
+	bool
+	prompt "Enable STREAM limit conn module"
+	depends on PACKAGE_nginx-mod-stream
+	default y
+
+config NGINX_STREAM_GEO
+	bool
+	prompt "Enable STREAM geo module"
+	depends on PACKAGE_nginx-mod-stream
+	default y
+
+config NGINX_STREAM_MAP
+	bool
+	prompt "Enable STREAM map module"
+	depends on PACKAGE_nginx-mod-stream
+	default y
+
+config NGINX_STREAM_SPLIT_CLIENTS
+	bool
+	prompt "Enable STREAM split clients module"
+	depends on PACKAGE_nginx-mod-stream
+	default y
+
+config NGINX_STREAM_RETURN
+	bool
+	prompt "Enable STREAM return module"
+	depends on PACKAGE_nginx-mod-stream
+	default y
+
+config NGINX_STREAM_PASS
+	bool
+	prompt "Enable STREAM pass module"
+	depends on PACKAGE_nginx-mod-stream
+	default y
+
+config NGINX_STREAM_SET
+	bool
+	prompt "Enable STREAM set module"
+	depends on PACKAGE_nginx-mod-stream
+	default y
+
+config NGINX_STREAM_UPSTREAM_HASH
+	bool
+	prompt "Enable STREAM upstream hash module"
+	depends on PACKAGE_nginx-mod-stream
+	default y
+
+config NGINX_STREAM_UPSTREAM_LEAST_CONN
+	bool
+	prompt "Enable STREAM upstream least conn module"
+	depends on PACKAGE_nginx-mod-stream
+	default y
+
+config NGINX_STREAM_UPSTREAM_LEAST_TIME
+	bool
+	prompt "Enable STREAM upstream least time module"
+	depends on PACKAGE_nginx-mod-stream
+	default y
+
+config NGINX_STREAM_UPSTREAM_RANDOM
+	bool
+	prompt "Enable STREAM upstream random module"
+	depends on PACKAGE_nginx-mod-stream
+	default y
+
+config NGINX_STREAM_UPSTREAM_ZONE
+	bool
+	prompt "Enable STREAM upstream zone module"
+	depends on PACKAGE_nginx-mod-stream
+	default y
+
+config NGINX_MAIL_POP3
+	bool
+	prompt "Enable MAIL POP3 module"
+	depends on PACKAGE_nginx-mod-mail
+	default y
+
+config NGINX_MAIL_IMAP
+	bool
+	prompt "Enable MAIL IMAP module"
+	depends on PACKAGE_nginx-mod-mail
+	default y
+
+config NGINX_MAIL_SMTP
+	bool
+	prompt "Enable MAIL SMTP module"
+	depends on PACKAGE_nginx-mod-mail
+	default y
 
 endmenu
