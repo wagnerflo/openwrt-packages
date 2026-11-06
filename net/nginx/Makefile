@@ -89,7 +89,7 @@ PKG_CONFIG_DEPENDS := \
 	CONFIG_NGINX_STREAM_REAL_IP \
 	CONFIG_OPENSSL_ENGINE \
 	CONFIG_OPENSSL_WITH_NPN \
-	$(foreach m,$(PKG_MOD_EXTRA),CONFIG_PACKAGE_$(m))
+	$(foreach m,$(PKG_MOD_ALL),CONFIG_PACKAGE_nginx-mod-$(m))
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
